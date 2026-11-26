@@ -16,10 +16,10 @@ export default async function handler(req, res) {
       }
     }
 
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(d.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) {
       return res.status(400).json({ error: "Please enter a valid email address." });
     }
-    if (d.phone.replace(/\\D/g, "").length < 7) {
+    if (d.phone.replace(/\D/g, "").length < 7) {
       return res.status(400).json({ error: "Please enter a valid phone number." });
     }
     if (d.motivation.trim().length < 15) {
