@@ -48,6 +48,16 @@ textarea{min-height:110px;resize:vertical}
 .feature-card h3{font-family:Georgia,serif;font-size:21px;font-weight:normal;margin:5px 0 12px}
 .feature-card p{color:var(--muted);font-size:14px;line-height:1.7}
 .domain-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.domain-item{width:100%;font-family:inherit;color:var(--dark);cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.domain-item:hover,.domain-item:focus-visible{border-color:var(--green);background:#f0f8f1;transform:translateY(-2px);outline:none}
+.domain-item[aria-pressed="true"]{background:var(--mint);border-color:var(--green);color:var(--green);box-shadow:0 0 0 2px #126b5b18}
+.domain-detail{display:none;max-width:850px;margin:24px auto 0;padding:26px;background:#fff;border:1px solid var(--border);border-left:4px solid var(--green);border-radius:12px;box-shadow:0 8px 24px #123f3509}
+.domain-detail.is-visible{display:block}
+.domain-detail h3{font-family:Georgia,serif;font-size:26px;font-weight:normal;margin:0 0 10px}
+.domain-detail p{color:var(--muted);font-size:14px;line-height:1.75}
+.domain-detail strong{display:block;margin-top:15px;font-size:13px}
+.domain-detail ul{color:var(--muted);font-size:14px;line-height:1.8;padding-left:20px;margin-bottom:0}
+.domain-note{text-align:center;color:var(--muted);font-size:12px;line-height:1.6;margin:18px auto 0;max-width:760px}
 .domain-item{background:#fff;border:1px solid var(--border);padding:17px 12px;text-align:center;border-radius:10px;font-size:14px;font-weight:bold}
 .faq{max-width:850px;margin:auto}
 details{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px}
@@ -113,7 +123,27 @@ footer{text-align:center;padding:28px 15px;background:#fff;border-top:1px solid 
 </section>
 <section class="container">
   <div class="section-heading"><div class="tag">EXPLORE YOUR INTEREST</div><h2>Choose your learning domain</h2><p>Select the domain that matches your interests and career goals.</p></div>
-  <div class="domain-grid"><div class="domain-item">AIML</div><div class="domain-item">Data Analysis</div><div class="domain-item">Full Stack Web Development</div><div class="domain-item">Cloud Computing</div><div class="domain-item">Cyber Security</div><div class="domain-item">UI/UX</div><div class="domain-item">Embedded Systems</div><div class="domain-item">VLSI</div><div class="domain-item">Digital Marketing</div><div class="domain-item">Auto Cad</div><div class="domain-item">Finance and Tally</div><div class="domain-item">Data Science</div></div>
+  <div class="domain-grid" id="learningDomainGrid">
+    <button type="button" class="domain-item" data-domain="aiml" aria-pressed="false">AIML</button>
+    <button type="button" class="domain-item" data-domain="data-analysis" aria-pressed="false">Data Analysis</button>
+    <button type="button" class="domain-item" data-domain="full-stack" aria-pressed="false">Full Stack Web Development</button>
+    <button type="button" class="domain-item" data-domain="cloud" aria-pressed="false">Cloud Computing</button>
+    <button type="button" class="domain-item" data-domain="cyber-security" aria-pressed="false">Cyber Security</button>
+    <button type="button" class="domain-item" data-domain="ui-ux" aria-pressed="false">UI/UX</button>
+    <button type="button" class="domain-item" data-domain="embedded" aria-pressed="false">Embedded Systems</button>
+    <button type="button" class="domain-item" data-domain="vlsi" aria-pressed="false">VLSI</button>
+    <button type="button" class="domain-item" data-domain="digital-marketing" aria-pressed="false">Digital Marketing</button>
+    <button type="button" class="domain-item" data-domain="autocad" aria-pressed="false">Auto Cad</button>
+    <button type="button" class="domain-item" data-domain="finance-tally" aria-pressed="false">Finance and Tally</button>
+    <button type="button" class="domain-item" data-domain="data-science" aria-pressed="false">Data Science</button>
+  </div>
+  <div class="domain-detail" id="domainDetail" aria-live="polite" aria-atomic="true">
+    <h3 id="domainDetailTitle"></h3>
+    <p id="domainDetailDescription"></p>
+    <strong>What you can explore</strong>
+    <ul id="domainDetailTopics"></ul>
+  </div>
+  <p class="domain-note">The topics shown are indicative learning areas. Please contact EduTantr to confirm the current programme curriculum, schedule and availability.</p>
 </section>
 <section class="container">
   <div class="section-heading"><div class="tag">COMMON QUESTIONS</div><h2>Before you apply</h2></div>
@@ -132,6 +162,44 @@ const statusBox=document.getElementById("status");
 const submitBtn=document.getElementById("submitBtn");
 const monthInput=document.getElementById("preferredMonth");
 const resumeInput=document.getElementById("resume");
+
+const learningDomains={
+  "aiml":{title:"Artificial Intelligence & Machine Learning (AIML)",description:"Explore how computers can learn from data, recognise patterns and support intelligent applications. Build an understanding of AI and machine-learning concepts through practical examples and project work.",topics:["Python and data preparation fundamentals","Machine-learning concepts and model workflows","AI applications, evaluation and practical projects"]},
+  "data-analysis":{title:"Data Analysis",description:"Learn how to turn raw information into useful insights. Explore ways to clean, organise, analyse and present data so that people and organisations can make informed decisions.",topics:["Spreadsheets and data cleaning","Exploratory analysis and visualisation","Reports, dashboards and communicating insights"]},
+  "full-stack":{title:"Full Stack Web Development",description:"Discover how modern websites and web applications are designed and built from end to end, covering the user-facing interface as well as the server and data layers.",topics:["HTML, CSS and JavaScript fundamentals","Frontend interfaces and responsive design","Backend, APIs, databases and deployment basics"]},
+  "cloud":{title:"Cloud Computing",description:"Understand how applications and digital services use cloud platforms to store data, run software and scale resources. Explore the foundations of modern cloud infrastructure.",topics:["Cloud concepts and service models","Compute, storage, networking and access basics","Deployment, monitoring and cloud security fundamentals"]},
+  "cyber-security":{title:"Cyber Security",description:"Explore the practices used to protect devices, networks, applications and information. Develop awareness of common threats and learn foundational defensive security concepts.",topics:["Networking, operating-system and security basics","Threat awareness and vulnerability concepts","Security practices, monitoring and safe lab exercises"]},
+  "ui-ux":{title:"UI/UX Design",description:"Learn to design digital experiences that are clear, useful and easy to navigate. Explore how user research, interface design and prototyping come together in a product.",topics:["User research and understanding user needs","Wireframes, layouts and visual interface design","Prototyping, usability and design iteration"]},
+  "embedded":{title:"Embedded Systems",description:"Discover how software interacts with electronic hardware in devices and connected systems. Explore the fundamentals behind controllers, sensors and real-time applications.",topics:["Microcontroller and embedded-system basics","Sensors, input/output and interfacing","Programming, testing and small hardware projects"]},
+  "vlsi":{title:"VLSI Design",description:"Get introduced to the design concepts behind very large-scale integrated circuits and modern semiconductor chips, from digital logic foundations to design workflows.",topics:["Digital electronics and logic design","Introduction to semiconductor and chip-design concepts","HDL fundamentals and simulation workflows"]},
+  "digital-marketing":{title:"Digital Marketing",description:"Understand how organisations reach and engage audiences online. Explore digital channels, content, search visibility and performance measurement.",topics:["Content strategy and social media fundamentals","Search engine optimisation and online campaigns","Analytics, audience insights and campaign measurement"]},
+  "autocad":{title:"AutoCAD",description:"Learn the fundamentals of computer-aided design and technical drafting. Explore how accurate 2D drawings and introductory 3D models can communicate design ideas.",topics:["Drawing tools, coordinates and precision drafting","Layers, dimensions, annotations and layouts","Introductory 3D concepts and drawing documentation"]},
+  "finance-tally":{title:"Finance and Tally",description:"Build foundational knowledge of business accounting and financial record-keeping. Explore how accounting software supports everyday bookkeeping and business reports.",topics:["Accounting principles and transaction entries","Ledgers, vouchers, GST and inventory concepts","Tally workflows and basic financial reports"]},
+  "data-science":{title:"Data Science",description:"Explore the process of using data, statistics and programming to answer questions and build predictive solutions. Learn how data moves from preparation to modelling and interpretation.",topics:["Python, statistics and data preparation","Data exploration and visualisation","Introductory predictive modelling and project work"]}
+};
+
+const domainGrid=document.getElementById("learningDomainGrid");
+const domainDetail=document.getElementById("domainDetail");
+domainGrid.addEventListener("click",(event)=>{
+  const selected=event.target.closest("button[data-domain]");
+  if(!selected)return;
+  const info=learningDomains[selected.dataset.domain];
+  if(!info)return;
+  domainGrid.querySelectorAll(".domain-item").forEach((button)=>{
+    const active=button===selected;
+    button.setAttribute("aria-pressed",String(active));
+  });
+  document.getElementById("domainDetailTitle").textContent=info.title;
+  document.getElementById("domainDetailDescription").textContent=info.description;
+  const topicList=document.getElementById("domainDetailTopics");
+  topicList.replaceChildren(...info.topics.map((topic)=>{
+    const item=document.createElement("li");
+    item.textContent=topic;
+    return item;
+  }));
+  domainDetail.classList.add("is-visible");
+  domainDetail.scrollIntoView({behavior:"smooth",block:"nearest"});
+});
 const now=new Date();
 monthInput.min=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
 function readFileAsBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]);reader.onerror=()=>reject(new Error("Unable to read the resume file."));reader.readAsDataURL(file);});}
