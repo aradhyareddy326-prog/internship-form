@@ -92,7 +92,7 @@ export default async function handler(req, res) {
     if (!firstRow.data.values?.length) {
       await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: "Applications!A1:M1",
+        range: "Applications!A1:N1",
         valueInputOption: "RAW",
         requestBody: { values: [headers] }
       });
