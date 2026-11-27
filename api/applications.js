@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   try {
     const d = req.body || {};
-    const required = ["name", "phone", "email", "college", "department", "year", "domain", "startDate"];
+    const required = ["name", "phone", "email", "college", "department", "year", "domain", "language", "startDate"];
 
     for (const field of required) {
       if (typeof d[field] !== "string" || !d[field].trim()) {
@@ -81,12 +81,12 @@ export default async function handler(req, res) {
     const headers = [
       "Application ID", "Submitted At", "Name", "WhatsApp Number", "Email",
       "College", "College Mail ID", "Department", "Year", "Interested Domain",
-      "Preferred Start Month", "Why This Internship", "Resume Link"
+      "Preferred Start Month", "Why This Internship", "Resume Link", "Language"
     ];
 
     const firstRow = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "Applications!A1:M1"
+      range: "Applications!A1:N1"
     });
 
     if (!firstRow.data.values?.length) {
@@ -99,10 +99,10 @@ export default async function handler(req, res) {
     } else {
       await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: "Applications!K1:M1",
+        range: "Applications!K1:N1",
         valueInputOption: "RAW",
         requestBody: { values: [[
-          "Preferred Start Month", "Why This Internship", "Resume Link"
+          "Preferred Start Month", "Why This Internship", "Resume Link", "Language"
         ]] }
       });
     }
@@ -133,7 +133,7 @@ export default async function handler(req, res) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: "Applications!A:M",
+      range: "Applications!A:N",
       valueInputOption: "RAW",
       insertDataOption: "INSERT_ROWS",
       requestBody: {
@@ -150,7 +150,8 @@ export default async function handler(req, res) {
           d.domain.trim(),
           d.startDate.trim(),
           (d.motivation || "").trim(),
-          resumeLink
+          resumeLink,
+          d.language.trim()
         ]]
       }
     });
